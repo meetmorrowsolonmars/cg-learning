@@ -40,39 +40,34 @@ int main(int, char **)
     }
 
     auto context = SDL_GL_CreateContext(window);
+
     if (context == nullptr)
     {
         std::cerr << "SDL could not create OpenGL context. Error: " << SDL_GetError() << std::endl;
         return -1;
     }
 
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, NULL, SDL_RENDERER_SOFTWARE);
-    if (renderer == nullptr)
+    if (gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress) == 0)
     {
-        std::cerr << "SDL could not create renderer. Error: " << SDL_GetError() << std::endl;
+        std::cerr << "GLAD could not load OpenGL functions." << std::endl;
         return -1;
     }
 
-    auto surface = SDL_GetWindowSurface(window);
-    if (surface == nullptr)
-    {
-        std::cerr << "SDL window have not surface. Error: " << SDL_GetError() << std::endl;
-        return -1;
-    }
+    std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
+    std::cout << "OpenGL renderer: " << glGetString(GL_RENDERER) << std::endl;
+    std::cout << "OpenGL vendor: " << glGetString(GL_VENDOR) << std::endl;
 
-    if (SDL_FillSurfaceRect(surface, nullptr, SDL_MapRGB(surface->format, 0xFF, 0x00, 0xFF)) < 0)
-    {
-        std::cerr << "SDL could not fill surface. Error: " << SDL_GetError() << std::endl;
-        return -1;
-    }
+    SDL_GL_SetSwapInterval(1);
 
-    if (SDL_UpdateWindowSurface(window) < 0)
-    {
-        std::cerr << "SDL could not update window surface. Error: " << SDL_GetError() << std::endl;
-        return -1;
-    }
+    int width = 0;
+    int height = 0;
 
-    std::cout << "Hello, from cg-learning!\n";
+    SDL_GetWindowSize(window, &width, &height);
+    glViewport(0, 0, width, height);
+    glClearColor(1.0f, 0.2f, 0.6f, 1.0f);
+
+    std::cout << "Window size: " << width << " " << height << std::endl;
+    std::cout << "Hello, from cg-learning!" << std::endl;
 
     bool quit = false;
     while (!quit)
@@ -84,14 +79,16 @@ int main(int, char **)
             {
                 quit = true;
             }
-            if (event.type == SDL_EVENT_KEY_DOWN)
+            if (event.type == SDL_EVENT_KEY_DOWN && event.key.keysym.sym == SDLK_q)
             {
                 quit = true;
             }
         }
+
+        glClear(GL_COLOR_BUFFER_BIT);
+        SDL_GL_SwapWindow(window);
     }
 
-    SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 
