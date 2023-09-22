@@ -1,7 +1,11 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 #include <SDL3/SDL.h>
 #include <glad/glad.h>
+
+std::string ReadFile(const std::string &path);
 
 int main(int, char **)
 {
@@ -59,6 +63,27 @@ int main(int, char **)
 
     SDL_GL_SetSwapInterval(1);
 
+    // load shaders
+    auto vertexShader = ReadFile("./shaders/colored_square/vertex.glsl");
+    auto fragmentShader = ReadFile("./shaders/colored_square/fragment.glsl");
+
+    auto glProgramId = glCreateProgram();
+
+    // compile vertex shader
+    auto value = fragmentShader.c_str();
+    auto glVertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(glVertexShader, 1, &value, nullptr);
+    glCompileShader(glVertexShader);
+
+    auto isCompiled = GL_FALSE;
+    glGetShaderiv(glVertexShader, GL_COMPILE_STATUS, &isCompiled);
+
+    if (!isCompiled)
+    {
+        std::cerr << "OpenGL vertex shader could not compiled." << std::endl;
+        return -1;
+    }
+
     int width = 0;
     int height = 0;
 
@@ -93,4 +118,12 @@ int main(int, char **)
     SDL_Quit();
 
     return 0;
+}
+
+std::string ReadFile(const std::string &path)
+{
+    std::ifstream file(path);
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
 }
