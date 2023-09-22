@@ -70,7 +70,7 @@ int main(int, char **)
     auto glProgramId = glCreateProgram();
 
     // compile vertex shader
-    auto value = fragmentShader.c_str();
+    auto value = vertexShader.c_str();
     auto glVertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(glVertexShader, 1, &value, nullptr);
     glCompileShader(glVertexShader);
@@ -81,6 +81,21 @@ int main(int, char **)
     if (!isCompiled)
     {
         std::cerr << "OpenGL vertex shader could not compiled." << std::endl;
+        return -1;
+    }
+
+    // compile fragment shader
+    value = fragmentShader.c_str();
+    auto glFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(glFragmentShader, 1, &value, nullptr);
+    glCompileShader(glFragmentShader);
+
+    isCompiled = GL_FALSE;
+    glGetShaderiv(glFragmentShader, GL_COMPILE_STATUS, &isCompiled);
+
+    if (!isCompiled)
+    {
+        std::cerr << "OpenGL fragment shader could not compiled." << std::endl;
         return -1;
     }
 
